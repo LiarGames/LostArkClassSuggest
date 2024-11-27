@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>로스트아크 직업 추천 시스템</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c2c2c;
+            color: #f1f1f1;
+            padding: 20px;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            min-height: 200px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 3px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 50px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        h1,
+        h2 {
+            color: #ffffff;
+        }
+
+        ol {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>로스트아크 직업 추천 시스템</h1>
+    <div id="output"></div>
+    <div id="choices">
+        <p>딜러를 키울거면 <strong>D</strong>, 아니면 <strong>S</strong>를 입력하세요:</p>
+        <input type="text" id="userInput" maxlength="1">
+        <button class="button" onclick="processInput()">제출</button>
+    </div>
+
+    <script>
+        const support = [
+            "홀리나이트",
+            "바드",
+            "도화가"
+        ];
+
+        const damage = [
+            "광전사의 비기 버서커", "광기 버서커",
+            "분노의 망치 디스트로이어", "중력 수련 디스트로이어",
+            "전투 태세 워로드", "고독한 기사 워로드",
+            "심판자 홀리나이트",
+            "포식자 슬레이어", "처단자 슬레이어",
+            "오의 강화 배틀마스터", "초심 배틀마스터",
+            "극의:체술 인파이터", "충격 단련 인파이터",
+            "세맥타통 기공사", "역천지체 기공사",
+            "절정 창술사", "절제 창술사",
+            "일격필살 스트라이커", "오의난무 스트라이커",
+            "강화무기 데빌헌터", "핸드거너 데빌헌터",
+            "화력강화 블래스터", "포격강화 블래스터",
+            "두 번째 동료 호크아이", "죽음의 습격 호크아이",
+            "아르테타인의 기술 스카우터", "진화의 유산 스카우터",
+            "피스메이커 건슬링어", "사냥의 시간 건슬링어",
+            "상급 소환사 서머너", "넘치는 교감 서머너",
+            "황후의 은총 아르카나", "황제의 칙령 아르카나",
+            "점화 소서리스", "환류 소서리스",
+            "잔재된 기운 블레이드", "버스트 블레이드",
+            "완벽한 억제 데모닉", "멈출 수 없는 충동 데모닉",
+            "갈증 리퍼", "달의 소리 리퍼",
+            "만월의 집행자 소울이터", "그믐의 경계 소울이터",
+            "질풍노도 기상술사", "이슬비 기상술사"
+        ];
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function generateAnyText(txt, epoch, outputDiv) {
+            const stepDiv = document.createElement('div');
+            outputDiv.appendChild(stepDiv);
+            let percent = Array.from({ length: epoch }, () => Math.floor(Math.random() * 100) + 1);
+            percent.sort((a, b) => a - b);
+            for (let i = 0; i < epoch; i++) {
+                let dots = ".".repeat(i);
+                let spaces = " ".repeat(epoch - i + 5);
+                stepDiv.textContent = txt + dots + spaces + "(" + percent[i] + "%)";
+                await sleep(Math.floor(Math.random() * 250) + 50); // 50~300 ms
+            }
+            stepDiv.textContent = txt + ".".repeat(epoch) + "     " + "(100%)\n";
+        }
+
+        const logMessages = [
+            "[INFO] Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "[INFO] Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "[WARNING] Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
+            "[INFO] Duis aute irure dolor in reprehenderit in voluptate velit esse.",
+            "[ERROR] Cillum dolore eu fugiat nulla pariatur.",
+            "[INFO] Excepteur sint occaecat cupidatat non proident.",
+            "[INFO] Sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            "[WARNING] Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.",
+            "[INFO] Sed nisi. Nulla quis sem at nibh elementum imperdiet.",
+            "[INFO] Duis sagittis ipsum. Praesent mauris.",
+            "[ERROR] Fusce nec tellus sed augue semper porta.",
+            "[INFO] Mauris massa. Vestibulum lacinia arcu eget nulla.",
+            "[WARNING] Class aptent taciti sociosqu ad litora torquent per conubia nostra.",
+            "[INFO] Inceptos himenaeos. Curabitur sodales ligula in libero.",
+            "[INFO] Sed dignissim lacinia nunc. Curabitur tortor."
+        ];
+
+        async function simulateInstallationLogs(outputDiv) {
+            for (let i = 0; i < logMessages.length; i++) {
+                const log = logMessages[i];
+                const logLine = document.createElement('div');
+                logLine.textContent = log;
+
+                if (log.startsWith("[ERROR]")) {
+                    logLine.style.color = "#ff4d4d";
+                } else if (log.startsWith("[WARNING]")) {
+                    logLine.style.color = "#ffcc00";
+                } else if (log.startsWith("[INFO]")) {
+                    logLine.style.color = "#00e676";
+                }
+                outputDiv.appendChild(logLine);
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+                await sleep(50);
+            }
+        }
+
+        async function runProcess(randjob) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.textContent = '';
+            await generateAnyText("로스트 아크 플레이 기록 다운로드", 4, outputDiv);
+            await generateAnyText("당신의 플레이 스타일 확인중", 10, outputDiv);
+            await generateAnyText("당신의 적성 확인중", 15, outputDiv);
+            await simulateInstallationLogs(outputDiv)
+
+            const resultHeader = document.createElement('p');
+            resultHeader.textContent = "당신의 적성을 확인하여 AI가 선정한 추천 직업:";
+            outputDiv.appendChild(resultHeader);
+
+            const recommendations = randjob.slice(0, 3);
+            const ol = document.createElement('ol');
+            ol.innerHTML = '';
+            recommendations.forEach((job, index) => {
+                const li = document.createElement('li');
+                li.textContent = job;
+                ol.appendChild(li);
+            });
+            outputDiv.appendChild(ol);
+        }
+
+        function processInput() {
+            const input = document.getElementById('userInput').value.trim().toUpperCase();
+            const allowed = ["D", "S", "d", "s"];
+            if (!allowed.includes(input)) {
+                alert("D 또는 S를 입력하세요.");
+                return;
+            }
+            let randjob = [];
+            if (input === "D" || input === "d") {
+                randjob = [...damage];
+            } else {
+                randjob = [...support];
+            }
+            shuffle(randjob);
+            runProcess(randjob);
+            document.getElementById('choices').classList.add('hidden');
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+    </script>
+</body>
+
+</html>
